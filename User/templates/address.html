@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% load staticfiles %}
+
+{% block main %}
+    <div class="Bott">
+			<div class="wrapper clearfix" style="margin: 0 auto">
+				<div class="zuo fl" style="margin-left: 100px">
+					<h3>
+						<a href="/"><img src="{% static 'images/tx.png' %}"></a>
+						<p class="clearfix"><span class="fl">[{{ user.account }}]</span><span class="fr logout">[退出登录]</span></p>
+					</h3>
+					<div>
+						<ul>
+							<li><a href="#">我的订单</a></li>
+						</ul>
+						<ul>
+							<li><a href="/user/address/">地址管理</a></li>
+						</ul>
+
+					</div>
+				</div>
+				<div class="you fl">
+
+    <h2>收货地址</h2>
+    <div class="add">
+        <div onclick="add()">
+            <a href="javascript:void(0);"  id="addxad"><img src="{% static 'images/jia.jpg' %}"></a>
+            <span>添加新地址</span>
+        </div>
+
+
+    </div>
+
+				</div>
+
+                <div class="mask" style="display: none;"></div>
+                <div class="adddz" style="display: none;">
+			        <form action="/user/address/#" method="get">
+                    <input type="text" placeholder="姓名" name="name" class="on">
+                    <input type="text" placeholder="手机号" name="phone">
+                    <div class="city">
+                        <select name="provinces">
+
+                        {% for province in provinces %}
+                            <option value="{{ province.id }}">{{ province.name }}</option>
+                        {% endfor %}
+
+
+                        </select>
+                        <select name="citys">
+
+                           {% for city in citys %}
+                            <option value="{{ city.id }}">{{ city.name }}</option>
+                           {% endfor %}
+\
+                        </select>
+                        <select name="areas">
+
+                             {% for area in areas %}
+                                <option value="{{ area.id }}">{{ area.name }}</option>
+                             {% endfor %}
+
+
+                        </select>
+                    </div>
+                    <textarea name="" rows="" cols="" class="address_details" placeholder="详细地址"></textarea>
+                    <div class="bc">
+                        <input type="button" onclick="save_address()" value="保存">
+                        <input type="button" value="取消">
+                    </div>
+			</form>
+		        </div>
+
+            </div>
+</div>
+    {% csrf_token %}
+{% endblock main %}
+{%block footerjs %}
+    <script>
+
+
+    //退出登录功能
+    $('.logout').click(function () {
+
+        $.ajax({
+            method:'post',
+            url:'/user/logout/',
+            data:'csrfmiddlewaretoken='+$('input[name="csrfmiddlewaretoken"]').val(),
+            success:function(data){
+                window.location='/user/login/'
+            }
+        })
+    })
+
+    //隐藏地址输入框
+    $('.mask').click(function () {
+        $(this).css('display','none')
+        $('.adddz').css('display','none')
+    })
+
+    //显示地址输入框
+    function add() {
+        $('.mask').css('display','block')
+        $('.adddz').css('display','block')
+    }
+
+    //三级联动
+    $('select[name="provinces"]').change(function(){
+        //获得是select选中的option的value
+        var provinceId = $(this).val()
+        $.ajax({
+            type:'post',
+            url:'/user/address/',
+            data:'provinceId='+provinceId+'&type=1&csrfmiddlewaretoken='+$('input[name="csrfmiddlewaretoken"]').val(),
+            success:function(data){
+                //console.log(data.citys)
+                var citys_parent = $('select[name="citys"]');
+                citys_parent.empty();
+
+                for(var index=0;index < data.citys.length;index++){
+                    var city = data.citys[index];
+                    var r='<option value="'+city.id+'">'+city.name+'</option>';
+                    $(r).appendTo(citys_parent);
+                }
+                var areas_parent = $('select[name="areas"]')
+                areas_parent.empty()
+                 for (var index=0;index < data.areas.length;index++){
+                    var city = data.areas[index]
+                     var r='<option value="'+city.id+'">'+city.name+'</option>'
+                    $(r).appendTo(areas_parent)
+                }
+            }
+        })
+    })
+
+    $('select[name="citys"]').change(function(){
+        var cityid = $(this).val()
+        $.ajax({
+            type:'post',
+             url:'/user/address/',
+            data:'cityId='+cityid+'&type=2&csrfmiddlewaretoken='+$('input[name="csrfmiddlewaretoken"]').val(),
+            success:function(data){
+                 var areas_parent = $('select[name="areas"]')
+                areas_parent.empty()
+                $.each(data.areas,function(index,area){
+                     var r='<option value="'+area.id+'">'+area.name+'</option>'
+                    $(r).appendTo(areas_parent)
+                })
+            }
+        })
+    })
+
+    function save_address() {
+       var name =$('input[name="name"]').val();
+       var phone =$('input[name="phone"]').val();
+       var province =$('select[name="provinces"] option:selected').text();
+       var city =$('select[name="citys"] option:selected').text();
+       var area =$('select[name="areas"] option:selected' ).text();
+       var details_address =$('.address_details').val();
+        var address = province+','+city+','+area+','+details_address;
+        var csrf_name = $('input[name="csrfmiddlewaretoken"]').val();
+        $.ajax({
+            async:false,
+            method:'post',
+            url:'/user/address/',
+            data:'type=3&address='+address+'&name='+name+'&phone='+phone+
+            '&csrfmiddlewaretoken='+csrf_name,
+            success:function(data){
+            $.each(data,function(index,d){
+            $('.add').append($(eval('"'+d+'"')))
+            })
+            }
+        })
+        $('.mask').css('display','none')
+        $('.adddz').css('display','none')
+    }
+
+
+
+
+    </script>
+{% endblock footerjs %}

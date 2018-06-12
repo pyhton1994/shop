@@ -1,0 +1,81 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<!-- saved from url=(0033)http://127.0.0.1:8000/?category=2 -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>首页</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/detail.css' %}">
+    <link rel="stylesheet" href="{% static 'css/carts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mygxin.css' %}">
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/carts.js' %}"></script>
+
+    {% block header %}
+    {% endblock header %}
+
+</head>
+<body>
+
+<div class="head">
+    <div class="head-in">
+        <ul class="options">
+            <li class="sub"><a href="http://127.0.0.1:8000/?category=2#">我的订单</a></li>
+            {% comment %}<li class="sub"><a href="http://127.0.0.1:8000/?category=2#">商家中心</a></li>{% endcomment %}
+            <li class="sub"><a href="http://127.0.0.1:8000/?category=2#">客户服务</a></li>
+            <li class="sub"><a href="/cart/cart.html">我的购物车</a></li>
+        </ul>
+
+
+            {% if user %}
+                <div class="register">欢迎<a href="/user/usercenter/">{{ user.account }}</a></div>
+            {% else %}
+                <div class="register"><a href="/user/register">免费注册</a></div>
+                <div class="sign"><a href="/user/login">登录</a></div>
+            {% endif %}
+
+
+
+
+
+    </div>
+</div>
+<div class="search">
+    <ul class="items">
+        <li class="item">
+            <a href="http://127.0.0.1:8000/?category=2#">
+                <img src="/static/images/1_09.png">
+                <p>10:00开抢</p>
+            </a>
+        </li>
+        <li class="item">
+            <a href="http://127.0.0.1:8000/?category=2#">
+                <img src="/static/images/1_11.png">
+                <p>买手砍价</p>
+            </a>
+        </li>
+        <li class="item">
+            <a href="http://127.0.0.1:8000/?category=2#">
+                <img src="/static/images/1_13.png">
+                <p>验货质检</p>
+            </a>
+        </li>
+    </ul>
+    <div class="input">
+        <input type="" name="" value="请输入想找的宝贝">
+        <img src="/static/images/1_06.png">
+    </div>
+</div>
+
+    {% block main %}
+    {% endblock main %}
+
+
+    {% block footerjs %}
+    {% endblock footerjs %}
+</body>
+
+</html>
