@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'',include('newgoods.urls')),
     url(r'^user/', include('User.urls')),
+    url(r'^cart/', include('cart.urls')),
 ]
 if DEBUG:
     from django.views.static import serve
