@@ -7,6 +7,8 @@ from django.shortcuts import render
 # Create your views here.
 
 from django.views import View
+
+from cart.cartmanager import SessionCartManager
 from .forms import *
 from utils import code
 from utils.loadaddr import *
@@ -35,13 +37,25 @@ class UserCenterView(View):
 
 class Login(View):
     def get(self,request):
-        return render(request,'login.html')
+        # 获取登录成功后跳转参数
+        redirect = request.GET.get('redirect', '')
+        cartitems = request.GET.get('cartitems', [])
+        return render(request, 'login.html', {'redirect': redirect, 'cartitems': cartitems})
 
     def post(self, request):
         try:
             # 验证是否登录成功
             user = User.login(**request.POST.dict())
             request.session['user'] = user
+
+            # 将购物项信息存放至数据库
+            SessionCartManager(request.session).migrateSession2DB()
+            # 登录成功后页面进行相应的跳转
+
+            if request.POST.get('redirect') == 'cart':
+                return HttpResponseRedirect('/cart/cart.html')
+            elif request.POST.get('redirect') == 'order':
+                return HttpResponseRedirect('/order?cartitems=' + request.POST.get('cartitems'))
 
             return HttpResponseRedirect('/user/usercenter/')
 
